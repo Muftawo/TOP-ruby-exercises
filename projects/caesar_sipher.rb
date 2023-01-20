@@ -1,5 +1,5 @@
 
-# interesting that ruby doesn't have methods to check for lower and upper case
+# interesting ruby doesn't have methods to check for lower and upper case
 def caesar_cipher(message, shift)
 
     ans = ""
