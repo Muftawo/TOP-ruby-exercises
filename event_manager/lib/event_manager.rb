@@ -21,6 +21,13 @@ def clean_phone_number(homephone)
 end
 
 
+def peak(sample_hash)
+  sample_hash.max_by{|k,v| v}[0]
+end
+
+def get_day_and_hour(date_string)
+  return DateTime.strptime(date_string,"%m/%d/%y %H:%M").wday, DateTime.strptime(date_string,"%m/%d/%y %H:%M").hour
+end
 
 
 def legislators_by_zipcode(zip)
@@ -50,5 +57,19 @@ def save_thank_you_letter(id,form_letter)
     file.puts form_letter
   end
 end
+
+
+  homephone = clean_phone_number(row[:homephone])
+
+  day, hour = get_day_and_hour(row[:regdate])
+  hours[hour] = hours.dig(hour).to_i + 1
+  weekdays[day] = weekdays.dig(day).to_i + 1
+  
+
+p_day = peak(weekdays)
+p_hour = peak(hours)
+
+days_of_week = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday" , "Saturday"]
+puts "\nThe day with the highest number of registrations #{days_of_week[p_day]} \n \nThe hour in which most people register is #{p_hour}:00 "
 
 
