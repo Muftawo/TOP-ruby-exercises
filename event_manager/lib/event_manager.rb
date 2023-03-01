@@ -1,3 +1,8 @@
+require 'csv'
+require 'google/apis/civicinfo_v2'
+require 'erb'
+require 'date'
+
 def clean_zipcode(zipcode)
     zipcode.to_s.strip.rjust(5, "0")[0..4]
 end
@@ -59,12 +64,37 @@ def save_thank_you_letter(id,form_letter)
 end
 
 
+puts 'EventManager initialized.'
+contents = CSV.open(
+  'event_attendees.csv',
+  headers: true,
+  header_converters: :symbol
+)
+template_letter = File.read 'form_letter.html.erb'
+erb_template = ERB.new template_letter
+
+hours = Hash.new
+weekdays = Hash.new
+contents.each do |row|
+  id = row[0]
+  name = row[:first_name]
+
+  zipcode = clean_zipcode(row[:zipcode])
   homephone = clean_phone_number(row[:homephone])
+
+
+  legislators = legislators_by_zipcode(zipcode)
+
+  form_letter = erb_template.result binding
 
   day, hour = get_day_and_hour(row[:regdate])
   hours[hour] = hours.dig(hour).to_i + 1
   weekdays[day] = weekdays.dig(day).to_i + 1
   
+  save_thank_you_letter(id,form_letter)
+
+
+end
 
 p_day = peak(weekdays)
 p_hour = peak(hours)
